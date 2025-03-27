@@ -1,11 +1,16 @@
 package com.michael.company.services;
 
+import java.io.InputStream;
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
 import io.minio.RemoveBucketArgs;
 import io.minio.RemoveObjectArgs;
 import io.minio.UploadObjectArgs;
@@ -14,7 +19,7 @@ import io.minio.UploadObjectArgs;
 public class MinioService {
 
     MinioClient minioClient = MinioClient.builder()
-            .endpoint("http://localhost:9000")
+            .endpoint("http://localhost:9001")
             .credentials("admin", "password123")
             .build();
 
@@ -38,48 +43,43 @@ public class MinioService {
         }
     }
 
-    public boolean checkBucketExists(String bucketName) {
+    public String uploadFile(MultipartFile file, String bucketName) {
         try {
-            return minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return false;
-        }
-    }
+            String fileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
 
-    public boolean getFile(String bucketName, String objectName) {
-        try {
-            minioClient.getObject(GetObjectArgs.builder().bucket(bucketName).object(objectName).build());
-            return true;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean uploadFile(String bucketName, String objectName, String filePath) {
-        try {
-            minioClient.uploadObject(
-                    UploadObjectArgs.builder()
+            minioClient.putObject(
+                    PutObjectArgs.builder()
                             .bucket(bucketName)
-                            .object(objectName)
-                            .filename(filePath)
+                            .object(fileName)
+                            .stream(file.getInputStream(), file.getSize(), -1)
+                            .contentType(file.getContentType())
                             .build());
-            return true;
+            return fileName;
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return false;
+            return null;
         }
     }
 
-    public boolean deleteFile(String bucketName, String objectName) {
+    public InputStream getFile(String fileName, String bucketName) throws Exception {
         try {
-            minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(objectName).build());
-            return true;
+            return minioClient.getObject(
+                    GetObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(fileName)
+                            .build());
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return false;
+            return null;
         }
+    }
+
+    public void deleteFile(String fileName, String bucketName) throws Exception {
+        minioClient.removeObject(
+                RemoveObjectArgs.builder()
+                        .bucket(bucketName)
+                        .object(fileName)
+                        .build());
     }
 
 }
