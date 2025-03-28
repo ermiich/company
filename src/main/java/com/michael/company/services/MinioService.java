@@ -2,18 +2,19 @@ package com.michael.company.services;
 
 import java.io.InputStream;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;
+import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveBucketArgs;
 import io.minio.RemoveObjectArgs;
-import io.minio.UploadObjectArgs;
+import io.minio.http.Method;
 
 @Service
 public class MinioService {
@@ -61,7 +62,22 @@ public class MinioService {
         }
     }
 
-    public InputStream getFile(String fileName, String bucketName) throws Exception {
+    public String getPresignedUrl(String fileName, String bucketName) {
+        try {
+            return minioClient.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .bucket(bucketName)
+                            .object(fileName)
+                            .method(Method.GET)
+                            .expiry(3650, TimeUnit.DAYS)
+                            .build());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+
+    public InputStream getFile(String fileName, String bucketName) {
         try {
             return minioClient.getObject(
                     GetObjectArgs.builder()
@@ -74,12 +90,17 @@ public class MinioService {
         }
     }
 
-    public void deleteFile(String fileName, String bucketName) throws Exception {
-        minioClient.removeObject(
-                RemoveObjectArgs.builder()
-                        .bucket(bucketName)
-                        .object(fileName)
-                        .build());
+    public void deleteFile(String fileName, String bucketName) {
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(fileName)
+                            .build());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
     }
 
 }

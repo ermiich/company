@@ -6,6 +6,7 @@ import jakarta.persistence.GenerationType;
 import java.io.Serializable;
 
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class Employee implements Serializable {
     private String phone;
 
     @NotNull(message = "Role is required")
+    @ManyToOne
     private Role role;
 
 }

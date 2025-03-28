@@ -1,26 +1,24 @@
-package com.michael.company.entities;
+package com.michael.company.dtos.requests;
+
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.io.Serializable;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 
-@Entity
 @Data
-public class Car implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+@RequiredArgsConstructor
+public class SaveCarRequest implements Serializable {
 
-    @ManyToOne
-    private Brand brand;
+    private Long carId;
+    
+    @NotNull(message = "BrandId is required")
+    private Long brandId;
 
     @NotBlank(message = "Model is required")
     private String model;
@@ -33,6 +31,6 @@ public class Car implements Serializable {
     @Min(value = 0, message = "Price must be greater than or equal to 0")
     private double price;
 
-    @NotBlank(message = "photoUrl is required")
-    private String photoUrl;
+    private MultipartFile image;
+
 }
