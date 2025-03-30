@@ -73,10 +73,10 @@ public class BrandService {
         }
     }
 
-    public ResponseEntity<Map<String, Object>> updateBrand(Long id, Brand brand) {
+    public ResponseEntity<Map<String, Object>> updateBrand(Brand brand) {
         Map<String, Object> response = new HashMap<>();
         try {
-            Brand existingBrand = brandRepository.findById(id).orElse(null);
+            Brand existingBrand = brandRepository.findById(brand.getId()).orElse(null);
             if (existingBrand == null) {
                 response.put("message", "Brand not found");
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);

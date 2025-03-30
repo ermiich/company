@@ -35,4 +35,5 @@ public class Car implements Serializable {
 
     @NotBlank(message = "photoUrl is required")
     private String photoUrl;
+
 }

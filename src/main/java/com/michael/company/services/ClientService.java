@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.michael.company.dtos.requests.SaveClientRequest;
 import com.michael.company.entities.Client;
 import com.michael.company.repositories.ClientRepository;
 
@@ -17,6 +18,24 @@ public class ClientService {
 
     @Autowired
     private ClientRepository clientRepository;
+
+    private Client generateClientFromSaveRequest(SaveClientRequest request) {
+        if (request == null) {
+            return null;
+        }
+
+        Client client = new Client();
+        if (request.getId() != null) {
+            client = clientRepository.findById(request.getId()).orElse(new Client());
+        }
+
+        client.setName(request.getName());
+        client.setEmail(request.getEmail());
+        client.setPhone(request.getPhone());
+        client.setAddress(request.getAddress());
+
+        return client;
+    }
 
     public ResponseEntity<Map<String, Object>> getAllClients() {
         Map<String, Object> response = new HashMap<>();
@@ -48,19 +67,6 @@ public class ClientService {
         }
     }
 
-    public ResponseEntity<Map<String, Object>> saveClient(Client client) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            Client savedClient = clientRepository.save(client);
-            response.put("message", "Client saved successfully");
-            response.put("data", savedClient);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("message", "Error saving client: " + e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     public ResponseEntity<Map<String, Object>> deleteClient(Long id) {
         Map<String, Object> response = new HashMap<>();
         try {
@@ -73,21 +79,50 @@ public class ClientService {
         }
     }
 
-    public ResponseEntity<Map<String, Object>> updateClient(Long id, Client client) {
+    public ResponseEntity<Map<String, Object>> createClient(SaveClientRequest createClientRequest) {
         Map<String, Object> response = new HashMap<>();
         try {
-            Client existingClient = clientRepository.findById(id).orElse(null);
-            if (existingClient == null) {
-                response.put("message", "Client not found");
-                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            Client client = generateClientFromSaveRequest(createClientRequest);
+            if (client == null) {
+                response.put("message", "Invalid client data");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
-            client.setId(id);
-            Client updatedClient = clientRepository.save(client);
-            response.put("message", "Client updated successfully");
-            response.put("data", updatedClient);
-            return ResponseEntity.ok(response);
+
+            clientRepository.save(client);
+            response.put("message", "Client created successfully");
+            response.put("data", client);
+
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
-            response.put("message", "Error updating client: " + e.getMessage());
+            response.put("message", "Error creating client");
+            response.put("data", createClientRequest);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<Map<String, Object>> updateClient(SaveClientRequest updateClientRequest) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Client client = clientRepository.findById(updateClientRequest.getId()).orElse(null);
+            if (client == null) {
+                response.put("message", "Client not found");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+
+            client = generateClientFromSaveRequest(updateClientRequest);
+            if (client == null) {
+                response.put("message", "Invalid client data");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+
+            clientRepository.save(client);
+
+            response.put("message", "Client updated successfully");
+            response.put("data", client);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("message", "Error updating client");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

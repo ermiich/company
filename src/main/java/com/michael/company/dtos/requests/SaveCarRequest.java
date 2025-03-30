@@ -1,7 +1,8 @@
 package com.michael.company.dtos.requests;
 
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 
@@ -12,11 +13,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Data
-@RequiredArgsConstructor
+@NoArgsConstructor
+@ToString(exclude = "image") // Evita problemas al imprimir la imagen en logs
 public class SaveCarRequest implements Serializable {
 
     private Long carId;
-    
+
     @NotNull(message = "BrandId is required")
     private Long brandId;
 

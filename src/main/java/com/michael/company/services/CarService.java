@@ -103,6 +103,7 @@ public class CarService {
 
     }
 
+    @Transactional
     public ResponseEntity<Map<String, Object>> updateCar(SaveCarRequest updateCarRequest) {
         Map<String, Object> response = new HashMap<>();
         try {
@@ -120,7 +121,6 @@ public class CarService {
 
             String fileName = minioService.uploadFile(updateCarRequest.getImage(), bucketName);
 
-            car.setId(updateCarRequest.getCarId());
             car.setPhotoUrl("/" + bucketName + "/" + fileName);
             carRepository.save(car);
 

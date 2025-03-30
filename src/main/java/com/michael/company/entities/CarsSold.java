@@ -14,12 +14,12 @@ import lombok.Data;
 
 @Entity
 @Data
-public class CarsSold implements Serializable{
+public class CarsSold implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne
+    @OneToOne       
     private Car car;
 
     @ManyToOne

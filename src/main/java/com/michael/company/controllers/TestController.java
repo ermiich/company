@@ -11,13 +11,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.michael.company.services.MinioService;
 
 @RestController
-@RequestMapping("/api/v1/test")
+@RequestMapping("/api/v1/images")
 public class TestController {
     @Autowired
     private MinioService minioService;
 
     @PostMapping
-    public ResponseEntity<String> test(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
         System.out.println("ARCHIVO:" + file.getOriginalFilename());
         String fileName = minioService.uploadFile(file, "car-images");
 
